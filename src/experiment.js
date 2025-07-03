@@ -358,8 +358,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   var test = {
     type: ImageKeyboardResponsePlugin,
     stimulus: jsPsych.timelineVariable('stimulus'),
-    stimulus_height: 1000,
-    stimulus_width: 1000,
+    stimulus_height: 500,
+    stimulus_width: 500,
     choices: ["NO_KEYS"],
     data: jsPsych.timelineVariable('data'),
     on_finish: function () {
@@ -367,7 +367,9 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       jsPsych.data.addDataToLastTrial({ blockcounter: blockcounter });
     },
     trial_duration: function () {
-      if (quick_mode == false) { return (image_duration) } else { return (quickmode_speed) }
+      if (quick_mode == false) {
+        return (image_duration)
+      } else { return (quickmode_speed) }
     }
   }
 
@@ -377,10 +379,14 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     stimulus: 'assets/img/question.png',
     choices: ['f', 'j'],
     post_trial_gap: function () {
+      console.log(quick_mode == false)
       if (quick_mode == false) { return (500) } else { return (quickmode_speed) }
     },
     trial_duration: function () {
-      if (quick_mode == false) { return (fixation_duration) } else { return (quickmode_speed) }
+      if (quick_mode == false) {
+        console.log(fixation_duration)
+        return (fixation_duration)
+      } else { return (quickmode_speed) }
     },
     data: { test_part: 'fixation' },
     // post_trial_gap: function(){
@@ -469,7 +475,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Press any key to proceed.",
     on_finish: function (data) {
-      time = jsPsych.totalTime(); //save total time as global variable
+      time = jsPsych.getTotalTime(); //save total time as global variable
       jsPsych.data.addProperties({ time: time });
     } //record total time
   };
@@ -694,8 +700,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   timeline.push(taskAge, taskDemo);
 
   await jsPsych.run(timeline);
-
   // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
   // if you handle results yourself, be it here or in `on_finish()`)
   return jsPsych;
+
 }
