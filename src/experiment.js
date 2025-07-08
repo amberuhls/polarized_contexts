@@ -119,7 +119,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     { stimulus: "assets/dots/Graph29.png", data: { test_part: 'test', actual_intensity: '29' } },
     { stimulus: "assets/dots/Graph30.png", data: { test_part: 'test', actual_intensity: '30' } },
     { stimulus: "assets/dots/Graph31.png", data: { test_part: 'test', actual_intensity: '31' } },
-    { stimulus: "assets/dots/Graph32.png", data: { test_part: 'test', actual_intensity: ' ' } },
+    { stimulus: "assets/dots/Graph32.png", data: { test_part: 'test', actual_intensity: '32' } },
     { stimulus: "assets/dots/Graph33.png", data: { test_part: 'test', actual_intensity: '33' } },
     { stimulus: "assets/dots/Graph34.png", data: { test_part: 'test', actual_intensity: '34' } },
     { stimulus: "assets/dots/Graph35.png", data: { test_part: 'test', actual_intensity: '35' } },
@@ -366,11 +366,11 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       blockcounter = blockcounter + 1;
       jsPsych.data.addDataToLastTrial({ blockcounter: blockcounter });
     },
-    trial_duration: function () {
+    trial_duration: 500, /* function () {
       if (quick_mode == false) {
         return (image_duration)
       } else { return (quickmode_speed) }
-    }
+    } */
   }
 
 
@@ -378,16 +378,17 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     type: ImageKeyboardResponsePlugin,
     stimulus: 'assets/img/question.png',
     choices: ['f', 'j'],
-    post_trial_gap: function () {
-      console.log(quick_mode == false)
-      if (quick_mode == false) { return (500) } else { return (quickmode_speed) }
-    },
-    trial_duration: function () {
+    post_trial_gap: 500,
+    /* function () {
+     console.log(quick_mode == false)
+     if (quick_mode == false) { return (500) } else { return (quickmode_speed) }
+   }, */
+    trial_duration: 5000, /* function () {
       if (quick_mode == false) {
         console.log(fixation_duration)
         return (fixation_duration)
       } else { return (quickmode_speed) }
-    },
+    }, */
     data: { test_part: 'fixation' },
     // post_trial_gap: function(){
     //     if (quick_mode == false){return(after_trial_gap)} else {return(500)}

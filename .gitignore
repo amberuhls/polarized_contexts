@@ -315,3 +315,4 @@ packaged/experiment/assets/.DS_Store
 .gitignore
 packaged/.DS_Store
 .DS_Store
+polarized_contexts.code-workspace
