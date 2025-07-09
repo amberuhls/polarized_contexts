@@ -25,7 +25,14 @@ import { initJsPsych } from "jspsych";
  * @type {import("jspsych-builder").RunFunction}
  */
 export async function run({ assetPaths, input = {}, environment, title, version }) {
-  const jsPsych = initJsPsych();
+  function saveData(data) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', './php/write_data.php'); // 'write_data.php' is the path to the php file described above.
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({ filedata: data }));
+    console.log("Data saved");
+  }
+  const jsPsych = initJsPsych({ on_finish: function () { saveData(jsPsych.data.get().csv()); } });
 
   const timeline = [];
   /******************************************/
@@ -33,42 +40,43 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   /******************************************/
 
 
-  var quick_mode = false;
-  var test_mode = false;
+  const quick_mode = true;
+  const test_mode = false;
 
-  var coin = [0, 1];
-  var coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
-  if (coin_flip == 0) { var stable = false; } else { var stable = true; }
-
-
-
-
-
-  var n_stable = 16;
-  var n_startup = 4;
-  var n_variable = 9;
-
-
-
-  var quickmode_speed = 10;
-  var after_trial_gap = null;
-  var image_duration = 500;
-  var fixation_duration = 5000;
-
-  var trials_per_block = 50;
-  var first_variable_signal = 0.4 * trials_per_block;
-  var second_variable_signal = 0.28 * trials_per_block;
-  var third_variable_signal = 0.16 * trials_per_block;
-  var fourth_variable_signal = 0.06 * trials_per_block;
-
-  var start_time;
+  const coin = [0, 1];
+  const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
+  let stable;
+  if (coin_flip == 0) { stable = false; } else { stable = true; }
 
 
 
 
 
-  var subject_id = 'pcc' + jsPsych.randomization.randomID(10);
-  var blockcounter = 0;
+  const n_stable = 16;
+  const n_startup = 4;
+  const n_variable = 9;
+
+
+
+  const quickmode_speed = 1;
+  const after_trial_gap = null;
+  const image_duration = 500;
+  const fixation_duration = 5000;
+
+  const trials_per_block = 50;
+  const first_variable_signal = 0.4 * trials_per_block;
+  const second_variable_signal = 0.28 * trials_per_block;
+  const third_variable_signal = 0.16 * trials_per_block;
+  const fourth_variable_signal = 0.06 * trials_per_block;
+
+  let start_time;
+
+
+
+
+
+  const subject_id = 'pcc' + jsPsych.randomization.randomID(10);
+  let blockcounter = 0;
 
 
 
@@ -85,33 +93,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     video: assetPaths.video,
   });
 
-  /* BLUE */
-  var signal = [
-    { stimulus: "assets/dots/Graph0.png", data: { test_part: 'test', actual_intensity: '0' } },
-    { stimulus: "assets/dots/Graph1.png", data: { test_part: 'test', actual_intensity: '1' } },
-    { stimulus: "assets/dots/Graph2.png", data: { test_part: 'test', actual_intensity: '2' } },
-    { stimulus: "assets/dots/Graph3.png", data: { test_part: 'test', actual_intensity: '3' } },
-    { stimulus: "assets/dots/Graph4.png", data: { test_part: 'test', actual_intensity: '4' } },
-    { stimulus: "assets/dots/Graph5.png", data: { test_part: 'test', actual_intensity: '5' } },
-    { stimulus: "assets/dots/Graph6.png", data: { test_part: 'test', actual_intensity: '6' } },
-    { stimulus: "assets/dots/Graph7.png", data: { test_part: 'test', actual_intensity: '7' } },
-    { stimulus: "assets/dots/Graph8.png", data: { test_part: 'test', actual_intensity: '8' } },
-    { stimulus: "assets/dots/Graph9.png", data: { test_part: 'test', actual_intensity: '9' } },
-    { stimulus: "assets/dots/Graph10.png", data: { test_part: 'test', actual_intensity: '10' } },
-    { stimulus: "assets/dots/Graph11.png", data: { test_part: 'test', actual_intensity: '11' } },
-    { stimulus: "assets/dots/Graph12.png", data: { test_part: 'test', actual_intensity: '12' } },
-    { stimulus: "assets/dots/Graph13.png", data: { test_part: 'test', actual_intensity: '13' } },
-    { stimulus: "assets/dots/Graph14.png", data: { test_part: 'test', actual_intensity: '14' } },
-    { stimulus: "assets/dots/Graph15.png", data: { test_part: 'test', actual_intensity: '15' } },
-    { stimulus: "assets/dots/Graph16.png", data: { test_part: 'test', actual_intensity: '16' } },
-    { stimulus: "assets/dots/Graph17.png", data: { test_part: 'test', actual_intensity: '17' } },
-    { stimulus: "assets/dots/Graph18.png", data: { test_part: 'test', actual_intensity: '18' } },
-    { stimulus: "assets/dots/Graph19.png", data: { test_part: 'test', actual_intensity: '19' } },
-    { stimulus: "assets/dots/Graph20.png", data: { test_part: 'test', actual_intensity: '20' } },
-    { stimulus: "assets/dots/Graph21.png", data: { test_part: 'test', actual_intensity: '21' } },
-    { stimulus: "assets/dots/Graph22.png", data: { test_part: 'test', actual_intensity: '22' } },
-    { stimulus: "assets/dots/Graph23.png", data: { test_part: 'test', actual_intensity: '23' } },
-    { stimulus: "assets/dots/Graph24.png", data: { test_part: 'test', actual_intensity: '24' } },
+  /* PURPLE AND BLUE MIDDLE */
+  const signal = [
     { stimulus: "assets/dots/Graph25.png", data: { test_part: 'test', actual_intensity: '25' } },
     { stimulus: "assets/dots/Graph26.png", data: { test_part: 'test', actual_intensity: '26' } },
     { stimulus: "assets/dots/Graph27.png", data: { test_part: 'test', actual_intensity: '27' } },
@@ -137,10 +120,6 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     { stimulus: "assets/dots/Graph47.png", data: { test_part: 'test', actual_intensity: '47' } },
     { stimulus: "assets/dots/Graph48.png", data: { test_part: 'test', actual_intensity: '48' } },
     { stimulus: "assets/dots/Graph49.png", data: { test_part: 'test', actual_intensity: '49' } },
-  ];
-
-  /* PURPLE */
-  var noise = [
     { stimulus: "assets/dots/Graph50.png", data: { test_part: 'test', actual_intensity: '50' } },
     { stimulus: "assets/dots/Graph51.png", data: { test_part: 'test', actual_intensity: '51' } },
     { stimulus: "assets/dots/Graph52.png", data: { test_part: 'test', actual_intensity: '52' } },
@@ -166,6 +145,37 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     { stimulus: "assets/dots/Graph72.png", data: { test_part: 'test', actual_intensity: '72' } },
     { stimulus: "assets/dots/Graph73.png", data: { test_part: 'test', actual_intensity: '73' } },
     { stimulus: "assets/dots/Graph74.png", data: { test_part: 'test', actual_intensity: '74' } },
+  ];
+
+  /* BLUE */
+  const noise_blue = [
+    { stimulus: "assets/dots/Graph0.png", data: { test_part: 'test', actual_intensity: '0' } },
+    { stimulus: "assets/dots/Graph1.png", data: { test_part: 'test', actual_intensity: '1' } },
+    { stimulus: "assets/dots/Graph2.png", data: { test_part: 'test', actual_intensity: '2' } },
+    { stimulus: "assets/dots/Graph3.png", data: { test_part: 'test', actual_intensity: '3' } },
+    { stimulus: "assets/dots/Graph4.png", data: { test_part: 'test', actual_intensity: '4' } },
+    { stimulus: "assets/dots/Graph5.png", data: { test_part: 'test', actual_intensity: '5' } },
+    { stimulus: "assets/dots/Graph6.png", data: { test_part: 'test', actual_intensity: '6' } },
+    { stimulus: "assets/dots/Graph7.png", data: { test_part: 'test', actual_intensity: '7' } },
+    { stimulus: "assets/dots/Graph8.png", data: { test_part: 'test', actual_intensity: '8' } },
+    { stimulus: "assets/dots/Graph9.png", data: { test_part: 'test', actual_intensity: '9' } },
+    { stimulus: "assets/dots/Graph10.png", data: { test_part: 'test', actual_intensity: '10' } },
+    { stimulus: "assets/dots/Graph11.png", data: { test_part: 'test', actual_intensity: '11' } },
+    { stimulus: "assets/dots/Graph12.png", data: { test_part: 'test', actual_intensity: '12' } },
+    { stimulus: "assets/dots/Graph13.png", data: { test_part: 'test', actual_intensity: '13' } },
+    { stimulus: "assets/dots/Graph14.png", data: { test_part: 'test', actual_intensity: '14' } },
+    { stimulus: "assets/dots/Graph15.png", data: { test_part: 'test', actual_intensity: '15' } },
+    { stimulus: "assets/dots/Graph16.png", data: { test_part: 'test', actual_intensity: '16' } },
+    { stimulus: "assets/dots/Graph17.png", data: { test_part: 'test', actual_intensity: '17' } },
+    { stimulus: "assets/dots/Graph18.png", data: { test_part: 'test', actual_intensity: '18' } },
+    { stimulus: "assets/dots/Graph19.png", data: { test_part: 'test', actual_intensity: '19' } },
+    { stimulus: "assets/dots/Graph20.png", data: { test_part: 'test', actual_intensity: '20' } },
+    { stimulus: "assets/dots/Graph21.png", data: { test_part: 'test', actual_intensity: '21' } },
+    { stimulus: "assets/dots/Graph22.png", data: { test_part: 'test', actual_intensity: '22' } },
+    { stimulus: "assets/dots/Graph23.png", data: { test_part: 'test', actual_intensity: '23' } },
+    { stimulus: "assets/dots/Graph24.png", data: { test_part: 'test', actual_intensity: '24' } },]
+  /* PURPLE */
+  const noise_purple = [
     { stimulus: "assets/dots/Graph75.png", data: { test_part: 'test', actual_intensity: '75' } },
     { stimulus: "assets/dots/Graph76.png", data: { test_part: 'test', actual_intensity: '76' } },
     { stimulus: "assets/dots/Graph77.png", data: { test_part: 'test', actual_intensity: '77' } },
@@ -194,7 +204,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   ];
 
   // screener questions
-  var questions = {
+  const questions = {
     type: SurveyPlugin,
     data: { trial_name: 'consent' },
     survey_json: {
@@ -210,6 +220,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
           type: "radiogroup",
           title: "Are you fluent in English?",
           name: "Eng",
+          allowClear: false,
           choices: ["Yes", "No"],
           isRequired: true,
         },
@@ -243,7 +254,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   timeline.push(questions);
 
 
-  var instructions1 = {
+  const instructions1 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Welcome to this study! We are interested in studying how people perceive and identify colors.",
     choices: [' '],
@@ -254,49 +265,49 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     } //record start time
   };
 
-  var instructions2 = {
+  const instructions2 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "In this task, you will see dots presented on the screen one at a time, in a variety of colors. Your task in this study will be to identify blue dots.",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var instructions3 = {
+  const instructions3 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "When you see a blue dot on the screen, press the 'blue' key. For all other dots, press the 'not blue' key.",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var instructions4 = {
+  const instructions4 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "The dots will be presented in series with breaks in between. This means that you will see a series of dots, have a short break, and then another series of dots, until you have seen 16 series. ",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var instructions5 = {
+  const instructions5 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Some of the series you see may have a lot of blue dots, and other may have only a few. There is nothing for you to count or keep track of -- your only task is to identify blue dots. ",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var instructions6 = {
+  const instructions6 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "You should do your best to answer quickly and accurately during the study. However, if you make a mistake and hit the wrong button at any point, just keep going. ",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var instructions7 = {
+  const instructions7 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Now you will complete a brief practice series so you can get used to the task. ",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var instructions8 = {
+  const instructions8 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: " You have now completed the practice series. Prepare for the main task.",
     choices: [' '],
@@ -330,32 +341,35 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   /* image block variables */
-  var allimages = signal.concat(noise);
+  const allimages = signal.concat(noise_blue, noise_purple);
 
 
-  var first_variable_noise = trials_per_block - first_variable_signal;
-  var second_variable_noise = trials_per_block - second_variable_signal;
-  var third_variable_noise = trials_per_block - third_variable_signal;
-  var fourth_variable_noise = trials_per_block - fourth_variable_signal;
+  const first_variable_noise = trials_per_block - first_variable_signal;
+  const second_variable_noise = trials_per_block - second_variable_signal;
+  const third_variable_noise = trials_per_block - third_variable_signal;
+  const fourth_variable_noise = trials_per_block - fourth_variable_signal;
 
-  var signal40 = jsPsych.randomization.sampleWithoutReplacement(signal, first_variable_signal);
-  var noise60 = jsPsych.randomization.sampleWithoutReplacement(noise, first_variable_noise);
-  var b5 = signal40.concat(noise60);
-  var block5 = jsPsych.randomization.repeat(b5, 1);
+  const signal40 = jsPsych.randomization.sampleWithoutReplacement(signal, first_variable_signal);
+  const noise60blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, first_variable_noise / 2);
+  const noise60purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, first_variable_noise / 2);
+  const b5 = signal40.concat(noise60blue, noise60purple);
+  const block5 = jsPsych.randomization.repeat(b5, 1);
 
-  var signal28 = jsPsych.randomization.sampleWithoutReplacement(signal, second_variable_signal);
-  var noise72 = jsPsych.randomization.sampleWithoutReplacement(noise, second_variable_noise);
-  var b6 = signal28.concat(noise72);
-  var block6 = jsPsych.randomization.repeat(b6, 1);
+  const signal28 = jsPsych.randomization.sampleWithoutReplacement(signal, second_variable_signal);
+  const noise72blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, second_variable_noise / 2);
+  const noise72purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, second_variable_noise / 2);
+  const b6 = signal28.concat(noise72blue, noise72purple);
+  const block6 = jsPsych.randomization.repeat(b6, 1);
 
-  var signal16 = jsPsych.randomization.sampleWithoutReplacement(signal, third_variable_signal);
-  var noise84 = jsPsych.randomization.sampleWithoutReplacement(noise, third_variable_noise);
-  var b7 = signal16.concat(noise84);
-  var block7 = jsPsych.randomization.repeat(b7, 1);
+  const signal16 = jsPsych.randomization.sampleWithoutReplacement(signal, third_variable_signal);
+  const noise84blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, third_variable_noise / 2);
+  const noise84purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, third_variable_noise / 2);
+  const b7 = signal16.concat(noise84blue, noise84purple);
+  const block7 = jsPsych.randomization.repeat(b7, 1);
 
 
 
-  var test = {
+  const test = {
     type: ImageKeyboardResponsePlugin,
     stimulus: jsPsych.timelineVariable('stimulus'),
     stimulus_height: 500,
@@ -366,29 +380,26 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       blockcounter = blockcounter + 1;
       jsPsych.data.addDataToLastTrial({ blockcounter: blockcounter });
     },
-    trial_duration: 500, /* function () {
+    trial_duration: function () {
       if (quick_mode == false) {
         return (image_duration)
       } else { return (quickmode_speed) }
-    } */
+    }
   }
 
 
-  var fixation = {
+  const fixation = {
     type: ImageKeyboardResponsePlugin,
     stimulus: 'assets/img/question.png',
     choices: ['f', 'j'],
-    post_trial_gap: 500,
-    /* function () {
-     console.log(quick_mode == false)
-     if (quick_mode == false) { return (500) } else { return (quickmode_speed) }
-   }, */
-    trial_duration: 5000, /* function () {
+    post_trial_gap: function () {
+      if (quick_mode == false) { return (500) } else { return (quickmode_speed) }
+    },
+    trial_duration: function () {
       if (quick_mode == false) {
-        console.log(fixation_duration)
         return (fixation_duration)
       } else { return (quickmode_speed) }
-    }, */
+    },
     data: { test_part: 'fixation' },
     // post_trial_gap: function(){
     //     if (quick_mode == false){return(after_trial_gap)} else {return(500)}
@@ -400,7 +411,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   /* random sampling */
-  var random_even_test_procedure = {
+  const random_even_test_procedure = {
     timeline: [test, fixation],
     timeline_variables: jsPsych.randomization.sampleWithReplacement(allimages, 10),
     randomize_order: true,
@@ -408,7 +419,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   }
 
   /* random sampling */
-  var random_last_test_procedure = {
+  const random_last_test_procedure = {
     timeline: [test, fixation],
     timeline_variables: allimages,
     sample: {
@@ -424,13 +435,13 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
   /* deterministic sampling */
   function evenSample() {
-    var a1 = jsPsych.randomization.sampleWithoutReplacement(signal, (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(noise, (0.5 * trials_per_block)));
+    const a1 = jsPsych.randomization.sampleWithoutReplacement(signal, (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(noise_blue, (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(noise_purple, (0.25 * trials_per_block)));
     return a1;
   }
 
   /* deterministic sampling */
   function lastSample() {
-    var b1 = jsPsych.randomization.sampleWithoutReplacement(signal, fourth_variable_signal).concat(jsPsych.randomization.sampleWithoutReplacement(noise, fourth_variable_noise));
+    const b1 = jsPsych.randomization.sampleWithoutReplacement(signal, fourth_variable_signal).concat(jsPsych.randomization.sampleWithoutReplacement(noise_blue, fourth_variable_noise / 2), jsPsych.randomization.sampleWithoutReplacement(noise_purple, fourth_variable_noise / 2));
     return b1;
   }
 
@@ -439,7 +450,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   /* deterministic sampling */
-  var test_procedure5 = {
+  const test_procedure5 = {
     timeline: [test, fixation],
     timeline_variables: block5,
     randomize_order: true,
@@ -447,7 +458,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   }
 
   /* deterministic sampling */
-  var test_procedure6 = {
+  const test_procedure6 = {
     timeline: [test, fixation],
     timeline_variables: block6,
     randomize_order: true,
@@ -455,7 +466,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   }
 
   /* deterministic sampling */
-  var test_procedure7 = {
+  const test_procedure7 = {
     timeline: [test, fixation],
     timeline_variables: block7,
     randomize_order: true,
@@ -464,7 +475,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   /*  static */
-  var next_block = {
+  const next_block = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Please take a short break. You can start the next series in a moment.",
     trial_duration: null,
@@ -472,7 +483,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     prompt: "<p>Press Spacebar to Continue When Ready</p>"
   };
   /*  static */
-  var finished1 = {
+  const finished1 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Press any key to proceed.",
     on_finish: function (data) {
@@ -483,85 +494,85 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   /*  static */
-  var code_block = {
+  const code_block = {
     type: HtmlButtonResponsePlugin,
     stimulus: ["<b>" + subject_id + "</b>" + " <br> Please cut and paste the code above to redeem your HIT. Then, press the finish button below to submit your responses. <b> If you do not press the button you cannot be paid for the HIT </b>."],
     choices: ["finish"]
   };
 
-  var survey_prompt = {
+  const survey_prompt = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Thanks for participating in the study! Please answer a few last questions before you go.",
     choices: [' '],
     prompt: "<p>Press Spacebar to Continue</p>"
   };
 
-  var q1 = {
+  const q1 = {
     type: SurveyTextPlugin,
     questions: [{ prompt: "How old are you?" }],
   };
 
-  var q2 = {
+  const q2 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Please indicate your gender", options: ["Male", "Female", "Prefer not to answer"], required: true }]
   };
 
-  var q3 = {
+  const q3 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Did you find the task easy or difficult?", options: ["Very Easy", "Easy", "Somewhat Easy", "Neutral", "Somewhat Difficult", "Difficult", "Very Difficult"], required: true, horizontal: true }]
   };
 
-  var q4 = {
+  const q4 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: " Are you right handed or left handed?", options: ["Right handed", "Left handed"], required: true }]
   };
 
-  var q5 = {
+  const q5 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Do you wear corrective lenses? If so, are you wearing them right now? ", options: ["Yes, but I am not wearing them right now", "Yes, and I am wearing them right now", "No"], required: true }]
   };
 
-  var q6 = {
+  const q6 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Do you have normal color vision", options: ["Yes", "No"], required: true }]
   };
 
-  var q7 = {
+  const q7 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Is English your only native language", options: ["Yes", "No, English is not my native language", "No, I spoke English and other languages growing up"], required: true }]
   };
 
-  var q8 = {
+  const q8 = {
     type: SurveyTextPlugin,
     questions: [{ prompt: "What do you think this study was about?" }],
   };
 
-  var q9 = {
+  const q9 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Do you think that it became easier or harder to find blue dots as the study progressed?", options: ["It became easier to find blue dots as the study progressed", "It became harder to find blue dots as the study progressed", "It was about the same throughout the study", "I am not sure"], required: true }]
   };
 
-  var q10 = {
+  const q10 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Do you feel that the amount of blue dots in each series changed during the study?", options: ["No, there were the same number of blue dots throughout the study", "Yes, there were fewer blue dots as the study went on", "Yes, there were more blue dots as the study went on", "I am not sure"], required: true }]
   };
 
 
-  var range_options = ["0-10% Blue", "10-20% Blue", "20-30% Blue", "30-40% Blue", "40-50% Blue", "50-60% Blue", "60-70% Blue", "70-80% Blue", "80-90% Blue", "90-100% Blue", "Not Sure"];
+  const range_options = ["0-10% Blue", "10-20% Blue", "20-30% Blue", "30-40% Blue", "40-50% Blue", "50-60% Blue", "60-70% Blue", "70-80% Blue", "80-90% Blue", "90-100% Blue", "Not Sure"];
 
 
-  var q11 = {
+  const q11 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "In the first few series, I saw", options: range_options, required: true, horizontal: true }, { prompt: "In the middle few series, I saw", options: range_options, required: true, horizontal: true }, { prompt: "In the last few series, I saw", options: range_options, required: true, horizontal: true }],
     preamble: "<p> We want to get a sense of how many blue dots you think you saw at different times in the study. Please indicate, using the options below, your impressions about what proportion of the dots you saw were blue. If you have no idea, please check the box labeled Not Sure instead </p>"
   };
 
-  var q12 = {
+  const q12 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "By the end of the study, do you think that your definition of what counted as a blue dot changed?", options: ["No, I think that my defintiion of what counted as a blue dot did not change during the study.", "  Yes, I think my definition of what counts as a blue dot expanded -- I counted a wider range of colors as blue at the end of the study compared to the beginning of the study.", "  Yes, I think my definition of what counts as a blue dot narrowed -- I counted a smaller range of colors as blue at the end of the study compared to the beginning of the study.", " I am not sure if my definition changed", " I don't understand this question"], required: true }]
   };
 
-  var q13 = {
+  const q13 = {
     type: SurveyTextPlugin,
     questions: [{ prompt: "If you have any other comments about the study, please let us know here" }],
   };
@@ -575,8 +586,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   if (stable == true) {
-    for (var i = 0; i < n_stable; i++) {
-      var even_test_procedure = {
+    for (let i = 0; i < n_stable; i++) {
+      const even_test_procedure = {
         timeline: [test, fixation],
         timeline_variables: evenSample(),
         randomize_order: true,
@@ -588,8 +599,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   }
 
   else {
-    for (var i = 0; i < n_startup; i++) {
-      var even_test_procedure = {
+    for (let i = 0; i < n_startup; i++) {
+      const even_test_procedure = {
         timeline: [test, fixation],
         timeline_variables: evenSample(),
         randomize_order: true,
@@ -605,8 +616,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     timeline.push(test_procedure7);
     timeline.push(next_block);
 
-    for (var i = 0; i < n_variable; i++) {
-      var last_test_procedure = {
+    for (let i = 0; i < n_variable; i++) {
+      const last_test_procedure = {
         timeline: [test, fixation],
         timeline_variables: lastSample(),
         randomize_order: true,
@@ -623,13 +634,13 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   //mult choice: religion, gender, hispanic, race, sexOrientation, education
-  var taskAge = {
+  const taskAge = {
     type: SurveyTextPlugin,
     questions: [{ prompt: "What is your age?", name: "age" }],
   };
 
   //demo questions
-  var taskDemo = {
+  const taskDemo = {
     type: SurveyMultiChoicePlugin,
     questions: [
       {
@@ -697,12 +708,10 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       },
     ]
   };
-
   timeline.push(taskAge, taskDemo);
 
   await jsPsych.run(timeline);
   // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
   // if you handle results yourself, be it here or in `on_finish()`)
-  return jsPsych;
 
 }
