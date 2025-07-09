@@ -25,14 +25,14 @@ import { initJsPsych } from "jspsych";
  * @type {import("jspsych-builder").RunFunction}
  */
 export async function run({ assetPaths, input = {}, environment, title, version }) {
-  function saveData(data) {
+  function saveData(id, data) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', './php/write_data.php'); // 'write_data.php' is the path to the php file described above.
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ filedata: data }));
-    console.log("Data saved");
+    xhr.send(JSON.stringify({ id: id, filedata: data }));
+    console.log("Data saved to data/" + id);
   }
-  const jsPsych = initJsPsych({ on_finish: function () { saveData(jsPsych.data.get().csv()); } });
+  const jsPsych = initJsPsych({ on_finish: function () { saveData(id + "-" + session_id, jsPsych.data.get().csv()); } });
 
   const timeline = [];
   /******************************************/
@@ -40,8 +40,11 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   /******************************************/
 
 
-  const quick_mode = true;
-  const test_mode = false;
+  let quick_mode = false;
+  let test_mode = false;
+
+  let id;
+  const session_id = Date.now().toString(36) + Math.random().toString(36).substring(2);
 
   const coin = [0, 1];
   const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
@@ -213,6 +216,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
         {
           //Capture prolific ID manually
           type: "text",
+          name: "prolific",
           title: "Please enter your Prolific ID accurately.",
         },
         {
@@ -248,6 +252,11 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       } else if (data.response.attention_check != "Other") {
         jsPsych.endExperiment();
       }
+      if (data.response.prolific == "quick_mode_activate") {
+        quick_mode = true;
+        console.log("Quick mode activated!");
+      }
+      id = data.response.prolific;
     }
   };
 
@@ -480,7 +489,10 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     stimulus: "Please take a short break. You can start the next series in a moment.",
     trial_duration: null,
     choices: [' '],
-    prompt: "<p>Press Spacebar to Continue When Ready</p>"
+    prompt: "<p>Press Spacebar to Continue When Ready</p>",
+    on_finish: function (data) {
+      saveData(id + "-" + session_id, jsPsych.data.get().csv());
+    }
   };
   /*  static */
   const finished1 = {
