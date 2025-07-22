@@ -318,3 +318,4 @@ packaged/.DS_Store
 polarized_contexts.code-workspace
 .DS_Store
 packaged
+.vscode

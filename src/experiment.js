@@ -1,5 +1,5 @@
 /**
- * @title polarized_contexts
+ * @title Polarized Contexts
  * @description 
  * @version 0.1.0
  *
@@ -32,7 +32,12 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     xhr.send(JSON.stringify({ id: id, filedata: data }));
     console.log("Data saved to data/" + id);
   }
-  const jsPsych = initJsPsych({ on_finish: function () { saveData(id + "-" + session_id, jsPsych.data.get().csv()); } });
+  const jsPsych = initJsPsych({
+    on_finish: function () {
+      saveData(id + "-" + session_id, jsPsych.data.get().csv());
+      window.location = "https://app.prolific.com/submissions/complete?cc=C1HROM6I";
+    }
+  });
 
   const timeline = [];
   /******************************************/
@@ -50,6 +55,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
   const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
   let stable;
   if (coin_flip == 0) { stable = false; } else { stable = true; }
+  console.log(stable);
 
 
 
@@ -252,7 +258,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       } else if (data.response.attention_check != "Other") {
         jsPsych.endExperiment();
       }
-      if (data.response.prolific == "quick_mode_activate") {
+      if (data.response.prolific == "quick") {
         quick_mode = true;
         console.log("Quick mode activated!");
       }
@@ -598,8 +604,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
 
   if (stable == true) {
-    for (let i = 0; i < n_stable; i++) {
-      const even_test_procedure = {
+    for (let i = 0; i < n_stable - 1; i++) {
+      var even_test_procedure = {
         timeline: [test, fixation],
         timeline_variables: evenSample(),
         randomize_order: true,
@@ -608,6 +614,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
       timeline.push(even_test_procedure);
       timeline.push(next_block);
     }
+    timeline.push(even_test_procedure);
   }
 
   else {
@@ -626,7 +633,6 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     timeline.push(test_procedure6);
     timeline.push(next_block);
     timeline.push(test_procedure7);
-    timeline.push(next_block);
 
     for (let i = 0; i < n_variable; i++) {
       const last_test_procedure = {
@@ -635,8 +641,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
         randomize_order: true,
         repetitions: 1
       };
-      timeline.push(last_test_procedure);
       timeline.push(next_block);
+      timeline.push(last_test_procedure);
     }
   }
 
