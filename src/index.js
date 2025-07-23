@@ -298,11 +298,11 @@ const questions = {
         //Ends experiment early if failed english or attention check
         //NOTE: This still leads to the regular end screen and saves data. Do we want this? 
         if (data.response.Eng == "No") {
-            //jsPsych.endExperiment();
+            jsPsych.abortExperiment();
         } else if (data.response.attention_check != "Other") {
-            //jsPsych.endExperiment();
+            jsPsych.abortExperiment();
         }
-        if (data.response.prolific == "quick") {
+        if (data.response.prolific == "quick" || data.response.prolific == "quickskipend") {
             quick_mode = true;
             console.log("Quick mode activated!");
         }
@@ -605,10 +605,12 @@ const next_block = {
 const finished1 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Press any key to proceed.",
-    on_finish: function (data) {
-        time = jsPsych.getTotalTime(); //save total time as global variable
-        jsPsych.data.addProperties({ time: time });
-    } //record total time
+    on_finish: function () {
+        if (test_mode) {
+            jsPsych.pauseExperiment()
+            jsPsych.data.displayData('csv');
+        }
+    }
 };
 
 
@@ -667,8 +669,6 @@ const q13 = {
     type: SurveyTextPlugin,
     questions: [{ prompt: "If you have any other comments about the study, please let us know here" }],
 };
-
-
 
 /******************************************/
 /*           Experiment                   */
@@ -861,7 +861,8 @@ const taskDemo = {
         },
     ]
 };
-timeline.push(taskAge, taskDemo);
+
+timeline.push(finished1, q3, q4, q5, q6, q8, q9, q10, q11, q12, taskAge, taskDemo, q13);
 
 await jsPsych.run(timeline);
 // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
