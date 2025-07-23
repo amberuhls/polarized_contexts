@@ -41,6 +41,52 @@ function importAll(r) {
     return images;
 }
 
+function sampleArray(arr, sampleSize) {
+    // Handle edge cases: empty array or non-positive sample size
+    if (!arr || arr.length === 0) {
+        console.warn("Input array is empty or null.");
+        return [];
+    }
+    if (sampleSize <= 0) {
+        console.warn("Sample size must be a positive number.");
+        return [];
+    }
+
+    // Create a shallow copy of the array to avoid modifying the original
+    const mutableArr = [...arr];
+    const result = [];
+
+    // Case 1: Sample size is less than or equal to the array length (without replacement)
+    if (sampleSize <= mutableArr.length) {
+        for (let i = 0; i < sampleSize; i++) {
+            // Generate a random index
+            const randomIndex = Math.floor(Math.random() * mutableArr.length);
+            // Add the element to the result
+            result.push(mutableArr[randomIndex]);
+            // Remove the sampled element to ensure no replacement
+            mutableArr.splice(randomIndex, 1);
+        }
+    }
+    // Case 2: Sample size is greater than the array length (initially without, then with replacement)
+    else {
+        // First, sample all elements without replacement
+        while (mutableArr.length > 0) {
+            const randomIndex = Math.floor(Math.random() * mutableArr.length);
+            result.push(mutableArr[randomIndex]);
+            mutableArr.splice(randomIndex, 1);
+        }
+
+        // Then, continue sampling with replacement from the original array
+        const remainingSamples = sampleSize - arr.length;
+        for (let i = 0; i < remainingSamples; i++) {
+            const randomIndex = Math.floor(Math.random() * arr.length);
+            result.push(arr[randomIndex]);
+        }
+    }
+
+    return result;
+}
+
 const dots = importAll(dotsContext);
 const question = importAll(imgContext)
 
@@ -51,15 +97,15 @@ const timeline = [];
 
 
 let quick_mode = false;
-let test_mode = true;
+let test_mode = false;
 
 let id;
 const session_id = Date.now().toString(36) + Math.random().toString(36).substring(2);
 
-const coin = [0, 1, 2];
+const coin = [0, 1, 2, 3];
 const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
 let condition;
-if (coin_flip == 0) { condition = "stable"; } else if (coin_flip == 1) { condition = "rank"; } else { condition = "range" }
+if (coin_flip == 0) { condition = "Stable"; } else if (coin_flip == 1) { condition = "Rank"; } else if (coin_flip == 2) { condition = "Range" } else { condition = "rank & range" }
 console.log(condition);
 if (test_mode) { console.log("Test mode is on! Make sure to turn this off if this is the online version") }
 
@@ -78,7 +124,7 @@ const after_trial_gap = null;
 const image_duration = 500;
 const fixation_duration = 5000;
 
-const trials_per_block = 30;
+const trials_per_block = 50;
 const first_variable_signal = Math.floor(0.4 * trials_per_block);
 const second_variable_signal = Math.floor(0.28 * trials_per_block);
 const third_variable_signal = Math.floor(0.16 * trials_per_block);
@@ -260,6 +306,11 @@ const questions = {
             quick_mode = true;
             console.log("Quick mode activated!");
         }
+        else if (data.response.prolific == "quicktest") {
+            test_mode = true;
+            quick_mode = true;
+            console.log("Quick and test modes activated!");
+        }
         id = data.response.prolific;
     }
 };
@@ -363,39 +414,61 @@ const third_variable_noise = trials_per_block - third_variable_signal;
 const fourth_variable_noise = trials_per_block - fourth_variable_signal;
 let block5, block6, block7, block8;
 
-if (condition == "rank") {
+if (condition == "Rank") {
     let signal = all_dots.slice(35, 65);
     let noise_blue = all_dots.slice(20, 35);
     let noise_purple = all_dots.slice(65, 80);
 
-    const signal40 = jsPsych.randomization.sampleWithoutReplacement(signal, first_variable_signal);
-    const noise60blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, first_variable_noise / 2);
-    const noise60purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, first_variable_noise / 2);
+    const signal40 = sampleArray(signal, first_variable_signal);
+    const noise60blue = sampleArray(noise_blue, first_variable_noise / 2);
+    const noise60purple = sampleArray(noise_purple, first_variable_noise / 2);
     const b5 = signal40.concat(noise60blue, noise60purple);
     block5 = jsPsych.randomization.repeat(b5, 1);
 
-    const signal28 = jsPsych.randomization.sampleWithoutReplacement(signal, second_variable_signal);
-    const noise72blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, second_variable_noise / 2);
-    const noise72purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, second_variable_noise / 2);
+    const signal28 = sampleArray(signal, second_variable_signal);
+    const noise72blue = sampleArray(noise_blue, second_variable_noise / 2);
+    const noise72purple = sampleArray(noise_purple, second_variable_noise / 2);
     const b6 = signal28.concat(noise72blue, noise72purple);
     block6 = jsPsych.randomization.repeat(b6, 1);
 
-    const signal16 = jsPsych.randomization.sampleWithoutReplacement(signal, third_variable_signal);
-    const noise84blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, third_variable_noise / 2);
-    const noise84purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, third_variable_noise / 2);
+    const signal16 = sampleArray(signal, third_variable_signal);
+    const noise84blue = sampleArray(noise_blue, third_variable_noise / 2);
+    const noise84purple = sampleArray(noise_purple, third_variable_noise / 2);
     const b7 = signal16.concat(noise84blue, noise84purple);
     block7 = jsPsych.randomization.repeat(b7, 1);
 
 }
 
-else if (condition == "range") {
-    block5 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(32, 67), (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(15, 32), (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(67, 85), (0.25 * trials_per_block)));
+else if (condition == "Range") {
+    block5 = sampleArray(all_dots.slice(32, 67), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(15, 32), (0.25 * trials_per_block)), sampleArray(all_dots.slice(67, 85), (0.25 * trials_per_block)));
 
-    block6 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(30, 70), (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(10, 30), (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(70, 90), (0.25 * trials_per_block)));
+    block6 = sampleArray(all_dots.slice(30, 70), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(10, 30), (0.25 * trials_per_block)), sampleArray(all_dots.slice(70, 90), (0.25 * trials_per_block)));
 
-    block7 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(27, 72), (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(5, 27), (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(72, 95), (0.25 * trials_per_block)));
+    block7 = sampleArray(all_dots.slice(27, 72), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(5, 27), (0.25 * trials_per_block)), sampleArray(all_dots.slice(72, 95), (0.25 * trials_per_block)));
 
-    block8 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(25, 75), (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(0, 25), (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(75), (0.25 * trials_per_block)));
+    block8 = sampleArray(all_dots.slice(25, 75), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(0, 25), (0.25 * trials_per_block)), sampleArray(all_dots.slice(75), (0.25 * trials_per_block)));
+}
+
+else if (condition == "Rank & Range") {
+
+
+    const signal40 = sampleArray(all_dots.slice(32, 67), first_variable_signal);
+    const noise60blue = sampleArray(all_dots.slice(15, 32), first_variable_noise / 2);
+    const noise60purple = sampleArray(all_dots.slice(67, 85), first_variable_noise / 2);
+    const b5 = signal40.concat(noise60blue, noise60purple);
+    block5 = jsPsych.randomization.repeat(b5, 1);
+
+    const signal28 = sampleArray(all_dots.slice(30, 70), second_variable_signal);
+    const noise72blue = sampleArray(all_dots.slice(10, 30), second_variable_noise / 2);
+    const noise72purple = sampleArray(all_dots.slice(70, 90), second_variable_noise / 2);
+    const b6 = signal28.concat(noise72blue, noise72purple);
+    block6 = jsPsych.randomization.repeat(b6, 1);
+
+    const signal16 = sampleArray(all_dots.slice(27, 72), third_variable_signal);
+    const noise84blue = sampleArray(all_dots.slice(5, 27), third_variable_noise / 2);
+    const noise84purple = sampleArray(all_dots.slice(72, 95), third_variable_noise / 2);
+    const b7 = signal16.concat(noise84blue, noise84purple);
+    block7 = jsPsych.randomization.repeat(b7, 1);
 }
 
 const test = {
@@ -464,20 +537,28 @@ timeline.push(random_even_test_procedure);
 timeline.push(instructions8);
 
 /* deterministic sampling */
-function evenSample(cond) {
+function evenSample(cond = "Stable") {
     let a1;
-    if (cond == "stable") {
-        a1 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(35, 65), (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(20, 35), (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(65, 80), (0.25 * trials_per_block)));
+    if (cond == "Range") {
+        a1 = sampleArray(all_dots.slice(25, 75), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(0, 25), (0.25 * trials_per_block)), sampleArray(all_dots.slice(75), (0.25 * trials_per_block)));
+
     }
-    else if (cond == "range") {
-        a1 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(25, 75), (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(0, 25), (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(75), (0.25 * trials_per_block)));
+    else {
+        a1 = sampleArray(all_dots.slice(35, 65), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(20, 35), (0.25 * trials_per_block)), sampleArray(all_dots.slice(65, 80), (0.25 * trials_per_block)));
     }
     return a1;
 }
 
 /* deterministic sampling */
-function lastSample() {
-    const b1 = jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(35, 65), fourth_variable_signal).concat(jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(20, 35), fourth_variable_noise / 2), jsPsych.randomization.sampleWithoutReplacement(all_dots.slice(65, 80), fourth_variable_noise / 2));
+function lastSample(cond) {
+    let b1;
+    if (cond == "Rank") {
+        b1 = sampleArray(all_dots.slice(35, 65), fourth_variable_signal).concat(sampleArray(all_dots.slice(20, 35), fourth_variable_noise / 2), sampleArray(all_dots.slice(65, 80), fourth_variable_noise / 2));
+    }
+    else {
+        b1 = sampleArray(all_dots.slice(25, 75), fourth_variable_signal).concat(sampleArray(all_dots.slice(0, 25), fourth_variable_noise / 2), sampleArray(all_dots.slice(75), fourth_variable_noise / 2));
+    }
+
     return b1;
 }
 
@@ -624,25 +705,31 @@ const q13 = {
 
 
 
-if (condition == "stable") {
+if (condition == "Stable") {
     let even_test_procedure = {
         timeline: [test, fixation],
-        timeline_variables: evenSample(condition),
+        timeline_variables: evenSample(),
         randomize_order: true,
         repetitions: 1
     };
     for (let i = 0; i < n_stable - 1; i++) {
         timeline.push(even_test_procedure);
         timeline.push(next_block);
+        even_test_procedure = {
+            timeline: [test, fixation],
+            timeline_variables: evenSample(),
+            randomize_order: true,
+            repetitions: 1
+        };
     }
     timeline.push(even_test_procedure);
 }
 
-else if (condition == "rank") {
+else if (condition == "Rank") {
     for (let i = 0; i < n_startup; i++) {
         const even_test_procedure = {
             timeline: [test, fixation],
-            timeline_variables: evenSample("stable"),
+            timeline_variables: evenSample(),
             randomize_order: true,
             repetitions: 1
         };
@@ -658,7 +745,7 @@ else if (condition == "rank") {
     for (let i = 0; i < n_variable; i++) {
         const last_test_procedure = {
             timeline: [test, fixation],
-            timeline_variables: lastSample(),
+            timeline_variables: lastSample(condition),
             randomize_order: true,
             repetitions: 1
         };
@@ -666,11 +753,11 @@ else if (condition == "rank") {
         timeline.push(last_test_procedure);
     }
 }
-else if (condition == "range") {
+else if (condition == "Range") {
     for (let i = 0; i < n_startup; i++) {
         const even_test_procedure = {
             timeline: [test, fixation],
-            timeline_variables: evenSample("stable"),
+            timeline_variables: evenSample(),
             randomize_order: true,
             repetitions: 1
         };
@@ -692,6 +779,34 @@ else if (condition == "range") {
         };
         timeline.push(next_block);
         timeline.push(even_test_procedure);
+    }
+}
+else {
+    for (let i = 0; i < n_startup; i++) {
+        const even_test_procedure = {
+            timeline: [test, fixation],
+            timeline_variables: evenSample(),
+            randomize_order: true,
+            repetitions: 1
+        };
+        timeline.push(even_test_procedure);
+        timeline.push(next_block);
+    }
+    timeline.push(test_procedure5);
+    timeline.push(next_block);
+    timeline.push(test_procedure6);
+    timeline.push(next_block);
+    timeline.push(test_procedure7);
+
+    for (let i = 0; i < n_variable; i++) {
+        const last_test_procedure = {
+            timeline: [test, fixation],
+            timeline_variables: lastSample(condition),
+            randomize_order: true,
+            repetitions: 1
+        };
+        timeline.push(next_block);
+        timeline.push(last_test_procedure);
     }
 }
 
