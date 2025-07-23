@@ -105,7 +105,7 @@ const session_id = Date.now().toString(36) + Math.random().toString(36).substrin
 const coin = [0, 1, 2, 3];
 const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
 let condition;
-if (coin_flip == 0) { condition = "Stable"; } else if (coin_flip == 1) { condition = "Rank"; } else if (coin_flip == 2) { condition = "Range" } else { condition = "rank & range" }
+if (coin_flip == 0) { condition = "Stable"; } else if (coin_flip == 1) { condition = "Rank"; } else if (coin_flip == 2) { condition = "Range" } else { condition = "Rank & Range" }
 console.log(condition);
 if (test_mode) { console.log("Test mode is on! Make sure to turn this off if this is the online version") }
 
@@ -405,19 +405,19 @@ timeline.push(instructions7);
 
 
 /* image block variables */
-const middle80 = all_dots.slice(20, 80);
+const middle56 = all_dots.slice(22, 78);
 
 
 const first_variable_noise = trials_per_block - first_variable_signal;
 const second_variable_noise = trials_per_block - second_variable_signal;
 const third_variable_noise = trials_per_block - third_variable_signal;
 const fourth_variable_noise = trials_per_block - fourth_variable_signal;
-let block5, block6, block7, block8;
+let block5, block6, block7;
 
 if (condition == "Rank") {
-    let signal = all_dots.slice(35, 65);
-    let noise_blue = all_dots.slice(20, 35);
-    let noise_purple = all_dots.slice(65, 80);
+    let signal = all_dots.slice(36, 64);
+    let noise_blue = all_dots.slice(22, 36);
+    let noise_purple = all_dots.slice(64, 78);
 
     const signal40 = sampleArray(signal, first_variable_signal);
     const noise60blue = sampleArray(noise_blue, first_variable_noise / 2);
@@ -440,27 +440,26 @@ if (condition == "Rank") {
 }
 
 else if (condition == "Range") {
-    block5 = sampleArray(all_dots.slice(32, 67), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(15, 32), (0.25 * trials_per_block)), sampleArray(all_dots.slice(67, 85), (0.25 * trials_per_block)));
+    block5 = sampleArray(all_dots.slice(33, 67), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(17, 33), (0.25 * trials_per_block)), sampleArray(all_dots.slice(67, 83), (0.25 * trials_per_block)));
 
-    block6 = sampleArray(all_dots.slice(30, 70), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(10, 30), (0.25 * trials_per_block)), sampleArray(all_dots.slice(70, 90), (0.25 * trials_per_block)));
+    block6 = sampleArray(all_dots.slice(30, 70), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(11, 30), (0.25 * trials_per_block)), sampleArray(all_dots.slice(70, 89), (0.25 * trials_per_block)));
 
     block7 = sampleArray(all_dots.slice(27, 72), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(5, 27), (0.25 * trials_per_block)), sampleArray(all_dots.slice(72, 95), (0.25 * trials_per_block)));
 
-    block8 = sampleArray(all_dots.slice(25, 75), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(0, 25), (0.25 * trials_per_block)), sampleArray(all_dots.slice(75), (0.25 * trials_per_block)));
 }
 
 else if (condition == "Rank & Range") {
 
 
-    const signal40 = sampleArray(all_dots.slice(32, 67), first_variable_signal);
-    const noise60blue = sampleArray(all_dots.slice(15, 32), first_variable_noise / 2);
-    const noise60purple = sampleArray(all_dots.slice(67, 85), first_variable_noise / 2);
+    const signal40 = sampleArray(all_dots.slice(33, 67), first_variable_signal);
+    const noise60blue = sampleArray(all_dots.slice(17, 33), first_variable_noise / 2);
+    const noise60purple = sampleArray(all_dots.slice(67, 83), first_variable_noise / 2);
     const b5 = signal40.concat(noise60blue, noise60purple);
     block5 = jsPsych.randomization.repeat(b5, 1);
 
     const signal28 = sampleArray(all_dots.slice(30, 70), second_variable_signal);
-    const noise72blue = sampleArray(all_dots.slice(10, 30), second_variable_noise / 2);
-    const noise72purple = sampleArray(all_dots.slice(70, 90), second_variable_noise / 2);
+    const noise72blue = sampleArray(all_dots.slice(11, 30), second_variable_noise / 2);
+    const noise72purple = sampleArray(all_dots.slice(70, 89), second_variable_noise / 2);
     const b6 = signal28.concat(noise72blue, noise72purple);
     block6 = jsPsych.randomization.repeat(b6, 1);
 
@@ -516,7 +515,7 @@ const fixation = {
 /* random sampling */
 const random_even_test_procedure = {
     timeline: [test, fixation],
-    timeline_variables: jsPsych.randomization.sampleWithReplacement(middle80, 10),
+    timeline_variables: jsPsych.randomization.sampleWithReplacement(middle56, 10),
     randomize_order: true,
     repetitions: 1
 }
@@ -544,7 +543,7 @@ function evenSample(cond = "Stable") {
 
     }
     else {
-        a1 = sampleArray(all_dots.slice(35, 65), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(20, 35), (0.25 * trials_per_block)), sampleArray(all_dots.slice(65, 80), (0.25 * trials_per_block)));
+        a1 = sampleArray(all_dots.slice(36, 64), (0.5 * trials_per_block)).concat(sampleArray(all_dots.slice(22, 36), (0.25 * trials_per_block)), sampleArray(all_dots.slice(64, 78), (0.25 * trials_per_block)));
     }
     return a1;
 }
@@ -553,7 +552,7 @@ function evenSample(cond = "Stable") {
 function lastSample(cond) {
     let b1;
     if (cond == "Rank") {
-        b1 = sampleArray(all_dots.slice(35, 65), fourth_variable_signal).concat(sampleArray(all_dots.slice(20, 35), fourth_variable_noise / 2), sampleArray(all_dots.slice(65, 80), fourth_variable_noise / 2));
+        b1 = sampleArray(all_dots.slice(36, 64), fourth_variable_signal).concat(sampleArray(all_dots.slice(22, 36), fourth_variable_noise / 2), sampleArray(all_dots.slice(64, 78), fourth_variable_noise / 2));
     }
     else {
         b1 = sampleArray(all_dots.slice(25, 75), fourth_variable_signal).concat(sampleArray(all_dots.slice(0, 25), fourth_variable_noise / 2), sampleArray(all_dots.slice(75), fourth_variable_noise / 2));
@@ -613,29 +612,6 @@ const finished1 = {
 };
 
 
-/*  static */
-const code_block = {
-    type: HtmlButtonResponsePlugin,
-    stimulus: ["<b>" + subject_id + "</b>" + " <br> Please cut and paste the code above to redeem your HIT. Then, press the finish button below to submit your responses. <b> If you do not press the button you cannot be paid for the HIT </b>."],
-    choices: ["finish"]
-};
-
-const survey_prompt = {
-    type: HtmlKeyboardResponsePlugin,
-    stimulus: "Thanks for participating in the study! Please answer a few last questions before you go.",
-    choices: [' '],
-    prompt: "<p>Press Spacebar to Continue</p>"
-};
-
-const q1 = {
-    type: SurveyTextPlugin,
-    questions: [{ prompt: "How old are you?" }],
-};
-
-const q2 = {
-    type: SurveyMultiChoicePlugin,
-    questions: [{ prompt: "Please indicate your gender", options: ["Male", "Female", "Prefer not to answer"], required: true }]
-};
 
 const q3 = {
     type: SurveyMultiChoicePlugin,
@@ -655,11 +631,6 @@ const q5 = {
 const q6 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Do you have normal color vision", options: ["Yes", "No"], required: true }]
-};
-
-const q7 = {
-    type: SurveyMultiChoicePlugin,
-    questions: [{ prompt: "Is English your only native language", options: ["Yes", "No, English is not my native language", "No, I spoke English and other languages growing up"], required: true }]
 };
 
 const q8 = {
