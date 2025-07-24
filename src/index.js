@@ -610,6 +610,7 @@ const finished1 = {
             jsPsych.pauseExperiment()
             jsPsych.data.displayData('csv');
         }
+        saveData(id + "-" + session_id, jsPsych.data.get().csv());
     }
 };
 
