@@ -57,10 +57,10 @@ let test_mode = false;
 let id;
 const session_id = Date.now().toString(36) + Math.random().toString(36).substring(2);
 
-const coin = [0, 1, 2];
-const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
-let stable;
-if (coin_flip == 0) { stable = "bimodal"; } else if (coin_flip == 1) { stable = "stable"; } else { stable = "unimodal" }
+//const coin = [0, 1, 2];
+//const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
+const stable = "stable";
+//if (coin_flip == 0) { stable = "bimodal"; } else if (coin_flip == 1) { stable = "stable"; } else { stable = "unimodal" }
 console.log(stable);
 
 
