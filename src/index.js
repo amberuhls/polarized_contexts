@@ -18,8 +18,14 @@ function saveData(id, data) {
 }
 const jsPsych = initJsPsych({
     on_finish: function () {
-        saveData(id + "-" + session_id, jsPsych.data.get().csv());
-        window.location = "https://app.prolific.com/submissions/complete?cc=C1HROM6I";
+
+        if (test_mode) {
+            jsPsych.data.displayData('csv');
+        }
+        else {
+            saveData(id + "-" + session_id, jsPsych.data.get().csv());
+            window.location = "https://app.prolific.com/submissions/complete?cc=C1HROM6I";
+        }
     }
 });
 
@@ -51,10 +57,10 @@ let test_mode = false;
 let id;
 const session_id = Date.now().toString(36) + Math.random().toString(36).substring(2);
 
-const coin = [0, 1];
+const coin = [0, 1, 2];
 const coin_flip = jsPsych.randomization.sampleWithoutReplacement(coin, 1);
 let stable;
-if (coin_flip == 0) { stable = false; } else { stable = true; }
+if (coin_flip == 0) { stable = "bimodal"; } else if (coin_flip == 1) { stable = "stable"; } else { stable = "unimodal" }
 console.log(stable);
 
 
@@ -255,9 +261,14 @@ const questions = {
         } else if (data.response.attention_check != "Other") {
             //jsPsych.endExperiment();
         }
-        if (data.response.prolific == "quick") {
+        if (data.response.prolific == "quick" || data.response.prolific == "quickskipend") {
             quick_mode = true;
             console.log("Quick mode activated!");
+        }
+        else if (data.response.prolific == "quicktest") {
+            test_mode = true;
+            quick_mode = true;
+            console.log("Quick and test modes activated!");
         }
         id = data.response.prolific;
     }
@@ -356,30 +367,57 @@ timeline.push(instructions7);
 const allimages = signal.concat(noise_blue, noise_purple);
 
 
-const first_variable_noise = trials_per_block - first_variable_signal;
-const second_variable_noise = trials_per_block - second_variable_signal;
-const third_variable_noise = trials_per_block - third_variable_signal;
-const fourth_variable_noise = trials_per_block - fourth_variable_signal;
 
-const signal40 = jsPsych.randomization.sampleWithoutReplacement(signal, first_variable_signal);
-const noise60blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, first_variable_noise / 2);
-const noise60purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, first_variable_noise / 2);
-const b5 = signal40.concat(noise60blue, noise60purple);
-const block5 = jsPsych.randomization.repeat(b5, 1);
+let block5, block6, block7
 
-const signal28 = jsPsych.randomization.sampleWithoutReplacement(signal, second_variable_signal);
-const noise72blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, second_variable_noise / 2);
-const noise72purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, second_variable_noise / 2);
-const b6 = signal28.concat(noise72blue, noise72purple);
-const block6 = jsPsych.randomization.repeat(b6, 1);
+if (stable == "bimodal") {
 
-const signal16 = jsPsych.randomization.sampleWithoutReplacement(signal, third_variable_signal);
-const noise84blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, third_variable_noise / 2);
-const noise84purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, third_variable_noise / 2);
-const b7 = signal16.concat(noise84blue, noise84purple);
-const block7 = jsPsych.randomization.repeat(b7, 1);
+    const first_variable_noise = trials_per_block - first_variable_signal;
+    const second_variable_noise = trials_per_block - second_variable_signal;
+    const third_variable_noise = trials_per_block - third_variable_signal;
+    const signal40 = jsPsych.randomization.sampleWithoutReplacement(signal, first_variable_signal);
+    const noise60blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, first_variable_noise / 2);
+    const noise60purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, first_variable_noise / 2);
+    const b5 = signal40.concat(noise60blue, noise60purple);
+    block5 = jsPsych.randomization.repeat(b5, 1);
 
+    const signal28 = jsPsych.randomization.sampleWithoutReplacement(signal, second_variable_signal);
+    const noise72blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, second_variable_noise / 2);
+    const noise72purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, second_variable_noise / 2);
+    const b6 = signal28.concat(noise72blue, noise72purple);
+    block6 = jsPsych.randomization.repeat(b6, 1);
 
+    const signal16 = jsPsych.randomization.sampleWithoutReplacement(signal, third_variable_signal);
+    const noise84blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, third_variable_noise / 2);
+    const noise84purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, third_variable_noise / 2);
+    const b7 = signal16.concat(noise84blue, noise84purple);
+    block7 = jsPsych.randomization.repeat(b7, 1);
+}
+else if (stable == "unimodal") {
+    const first_variable_noise = trials_per_block / 2 - first_variable_signal / 2;
+    const second_variable_noise = trials_per_block / 2 - second_variable_signal / 2;
+    const third_variable_noise = trials_per_block / 2 - third_variable_signal / 2;
+
+    const signal40 = jsPsych.randomization.sampleWithoutReplacement(signal, trials_per_block / 2);
+    const noise60blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, first_variable_signal / 2);
+    const noise60purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, first_variable_noise);
+    const b5 = signal40.concat(noise60blue, noise60purple);
+    block5 = jsPsych.randomization.repeat(b5, 1);
+
+    const signal28 = jsPsych.randomization.sampleWithoutReplacement(signal, trials_per_block / 2);
+    const noise72blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, second_variable_signal / 2);
+    const noise72purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, second_variable_noise);
+    const b6 = signal28.concat(noise72blue, noise72purple);
+    block6 = jsPsych.randomization.repeat(b6, 1);
+
+    const signal16 = jsPsych.randomization.sampleWithoutReplacement(signal, trials_per_block / 2);
+    const noise84blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, third_variable_signal / 2);
+    const noise84purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, third_variable_noise);
+    const b7 = signal16.concat(noise84blue, noise84purple);
+    block7 = jsPsych.randomization.repeat(b7, 1);
+    console.log(block5, block6, block7)
+    console.log(trials_per_block / 2, first_variable_signal / 2, first_variable_noise, third_variable_signal / 2, third_variable_noise)
+}
 
 const test = {
     type: ImageKeyboardResponsePlugin,
@@ -447,13 +485,27 @@ timeline.push(instructions8);
 
 /* deterministic sampling */
 function evenSample() {
-    const a1 = jsPsych.randomization.sampleWithoutReplacement(signal, (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(noise_blue, (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(noise_purple, (0.25 * trials_per_block)));
+    let a1 = jsPsych.randomization.sampleWithoutReplacement(signal, (0.5 * trials_per_block)).concat(jsPsych.randomization.sampleWithoutReplacement(noise_blue, (0.25 * trials_per_block)), jsPsych.randomization.sampleWithoutReplacement(noise_purple, (0.25 * trials_per_block)));
+    a1 = jsPsych.randomization.shuffle(a1);
     return a1;
 }
 
 /* deterministic sampling */
-function lastSample() {
-    const b1 = jsPsych.randomization.sampleWithoutReplacement(signal, fourth_variable_signal).concat(jsPsych.randomization.sampleWithoutReplacement(noise_blue, fourth_variable_noise / 2), jsPsych.randomization.sampleWithoutReplacement(noise_purple, fourth_variable_noise / 2));
+function lastSample(cond) {
+    let b1
+    if (cond == "bimodal") {
+        const fourth_variable_noise = trials_per_block - fourth_variable_signal;
+        b1 = jsPsych.randomization.sampleWithoutReplacement(signal, fourth_variable_signal).concat(jsPsych.randomization.sampleWithoutReplacement(noise_blue, fourth_variable_noise / 2), jsPsych.randomization.sampleWithoutReplacement(noise_purple, fourth_variable_noise / 2));
+        b1 = jsPsych.randomization.shuffle(b1);
+    }
+    else if (cond == "unimodal") {
+        const fourth_variable_noise = trials_per_block / 2 - fourth_variable_signal / 2;
+        const signal6 = jsPsych.randomization.sampleWithoutReplacement(signal, trials_per_block / 2);
+        const noise94blue = jsPsych.randomization.sampleWithoutReplacement(noise_blue, 0.5 + fourth_variable_signal / 2);
+        const noise94purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, -0.5 + fourth_variable_noise);
+        const b8 = signal6.concat(noise94blue, noise94purple);
+        b1 = jsPsych.randomization.repeat(b8, 1);
+    }
     return b1;
 }
 
@@ -502,35 +554,13 @@ const finished1 = {
     type: HtmlKeyboardResponsePlugin,
     stimulus: "Press any key to proceed.",
     on_finish: function (data) {
-        time = jsPsych.getTotalTime(); //save total time as global variable
-        jsPsych.data.addProperties({ time: time });
+        if (test_mode) {
+            jsPsych.pauseExperiment()
+            jsPsych.data.displayData('csv');
+        }
     } //record total time
 };
 
-
-/*  static */
-const code_block = {
-    type: HtmlButtonResponsePlugin,
-    stimulus: ["<b>" + subject_id + "</b>" + " <br> Please cut and paste the code above to redeem your HIT. Then, press the finish button below to submit your responses. <b> If you do not press the button you cannot be paid for the HIT </b>."],
-    choices: ["finish"]
-};
-
-const survey_prompt = {
-    type: HtmlKeyboardResponsePlugin,
-    stimulus: "Thanks for participating in the study! Please answer a few last questions before you go.",
-    choices: [' '],
-    prompt: "<p>Press Spacebar to Continue</p>"
-};
-
-const q1 = {
-    type: SurveyTextPlugin,
-    questions: [{ prompt: "How old are you?" }],
-};
-
-const q2 = {
-    type: SurveyMultiChoicePlugin,
-    questions: [{ prompt: "Please indicate your gender", options: ["Male", "Female", "Prefer not to answer"], required: true }]
-};
 
 const q3 = {
     type: SurveyMultiChoicePlugin,
@@ -550,11 +580,6 @@ const q5 = {
 const q6 = {
     type: SurveyMultiChoicePlugin,
     questions: [{ prompt: "Do you have normal color vision", options: ["Yes", "No"], required: true }]
-};
-
-const q7 = {
-    type: SurveyMultiChoicePlugin,
-    questions: [{ prompt: "Is English your only native language", options: ["Yes", "No, English is not my native language", "No, I spoke English and other languages growing up"], required: true }]
 };
 
 const q8 = {
@@ -593,14 +618,13 @@ const q13 = {
 };
 
 
-
 /******************************************/
 /*           Experiment                   */
 /******************************************/
 
 
 
-if (stable == true) {
+if (stable == "stable") {
     for (let i = 0; i < n_stable - 1; i++) {
         var even_test_procedure = {
             timeline: [test, fixation],
@@ -634,7 +658,7 @@ else {
     for (let i = 0; i < n_variable; i++) {
         const last_test_procedure = {
             timeline: [test, fixation],
-            timeline_variables: lastSample(),
+            timeline_variables: lastSample(stable),
             randomize_order: true,
             repetitions: 1
         };
@@ -723,7 +747,7 @@ const taskDemo = {
         },
     ]
 };
-timeline.push(taskAge, taskDemo);
+timeline.push(finished1, q3, q4, q5, q6, q8, q9, q10, q11, q12, taskAge, taskDemo, q13);
 
 await jsPsych.run(timeline);
 // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this

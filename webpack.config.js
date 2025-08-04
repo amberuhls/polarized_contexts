@@ -7,15 +7,16 @@ const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-
 const stylesHandler = isProduction ? MiniCssExtractPlugin.loader : 'style-loader';
-
-
 
 const config = {
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
+        // Add these output properties to specify subdirectories
+        filename: 'js/[name].[contenthash].js', // JavaScript files go into 'js' folder
+        assetModuleFilename: 'images/[name].[hash][ext]', // Images and fonts go into 'images' folder
+        clean: true, // Cleans the 'dist' folder before each build (good practice)
     },
     devServer: {
         open: true,
@@ -47,7 +48,7 @@ const config = {
                 test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
                 type: 'asset',
             },
-            
+
             {
                 test: /\.html$/i,
                 use: ['html-loader'],
@@ -62,12 +63,15 @@ const config = {
 module.exports = () => {
     if (isProduction) {
         config.mode = 'production';
-        
-        config.plugins.push(new MiniCssExtractPlugin());
-        
-        
+
+        // When MiniCssExtractPlugin is used in production,
+        // we need to tell it where to put the CSS files.
+        config.plugins.push(new MiniCssExtractPlugin({
+            filename: 'css/[name].[contenthash].css', // CSS files go into 'css' folder
+        }));
+
         config.plugins.push(new WorkboxWebpackPlugin.GenerateSW());
-        
+
     } else {
         config.mode = 'development';
     }
