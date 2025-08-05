@@ -1,9 +1,11 @@
-import "./styles/main.scss";
-import FullscreenPlugin from "@jspsych/plugin-fullscreen";
+// index.js
+console.log("Vite is running!");
+
+import "./styles/main.css";
+import "jspsych/css/jspsych.css"
 import HtmlKeyboardResponsePlugin from "@jspsych/plugin-html-keyboard-response";
 import SurveyTextPlugin from "@jspsych/plugin-survey-text"
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice"
-import HtmlButtonResponsePlugin from "@jspsych/plugin-html-button-response";
 import ImageKeyboardResponsePlugin from "@jspsych/plugin-image-keyboard-response";
 import SurveyPlugin from "@jspsych/plugin-survey";
 import PreloadPlugin from "@jspsych/plugin-preload";
@@ -29,21 +31,24 @@ const jsPsych = initJsPsych({
     }
 });
 
-const dotsContext = require.context('./assets/dots', false, /\.(png|jpe?g|gif|svg)$/);
-const imgContext = require.context('./assets/img', false, /\.(png|jpe?g|gif|svg)$/);
+// Define the base URL for your shared assets on the server
+// This should match the path where your server serves the 'shared-assets' directory.
+const SHARED_ASSETS_BASE_URL = import.meta.env.DEV
+    ? '/' // Path for development server (e.g., localhost:5173/shared-assets/)
+    : '/webmt/polarized_contexts/shared/';       // Path for production server (e.g., yourdomain.com/shared/)
 
-// This function will iterate through the context and create an object
-// where keys are the original filenames (without './') and values are the image URLs.
-function importAll(r) {
-    let images = {};
-    r.keys().map((item) => {
-        images[item.replace('./', '')] = r(item);
-    });
-    return images;
+// Instead of importing, we'll construct the URLs for the images
+// based on their location within the shared assets directory.
+// Assuming your 'dots' images are in /shared/images/dots/
+// and your 'question.png' is in /shared/images/
+const dots = {};
+for (let i = 0; i <= 99; i++) { // Assuming Graph0.png to Graph99.png
+    dots[`Graph${i}.png`] = `${SHARED_ASSETS_BASE_URL}images/dots/Graph${i}.png`;
 }
 
-const dots = importAll(dotsContext);
-const question = importAll(imgContext)
+const question = {
+    "question.png": `${SHARED_ASSETS_BASE_URL}images/question.png`
+};
 
 const timeline = [];
 /******************************************/
@@ -92,6 +97,7 @@ let start_time;
 
 const subject_id = 'pcc' + jsPsych.randomization.randomID(10);
 let blockcounter = 0;
+let sectioncounter = 0;
 
 
 
@@ -415,8 +421,6 @@ else if (stable == "unimodal") {
     const noise84purple = jsPsych.randomization.sampleWithoutReplacement(noise_purple, third_variable_noise);
     const b7 = signal16.concat(noise84blue, noise84purple);
     block7 = jsPsych.randomization.repeat(b7, 1);
-    console.log(block5, block6, block7)
-    console.log(trials_per_block / 2, first_variable_signal / 2, first_variable_noise, third_variable_signal / 2, third_variable_noise)
 }
 
 const test = {
@@ -429,6 +433,7 @@ const test = {
     on_finish: function () {
         blockcounter = blockcounter + 1;
         jsPsych.data.addDataToLastTrial({ blockcounter: blockcounter });
+        jsPsych.data.addDataToLastTrial({ sectioncounter: sectioncounter });
     },
     trial_duration: function () {
         if (quick_mode == false) {
@@ -547,6 +552,7 @@ const next_block = {
     prompt: "<p>Press Spacebar to Continue When Ready</p>",
     on_finish: function (data) {
         saveData(id + "-" + session_id, jsPsych.data.get().csv());
+        sectioncounter++;
     }
 };
 /*  static */
@@ -749,6 +755,6 @@ const taskDemo = {
 };
 timeline.push(finished1, q3, q4, q5, q6, q8, q9, q10, q11, q12, taskAge, taskDemo, q13);
 
-await jsPsych.run(timeline);
+jsPsych.run(timeline);
 // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
 // if you handle results yourself, be it here or in `on_finish()`)
